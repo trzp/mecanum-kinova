@@ -64,8 +64,10 @@ class RmCar_x86
         self.rm.goHome()
         
 class RmCar_x64:
-    def __init__(self):
-        subprocess.Popen('python2 E:\MobileRobot\RmCar\RmCar_server.py') #启动服务
+    def __init__(self,external_start_server = False):   #允许从外部启动服务
+        if not external_start_server:
+            subprocess.Popen('python2 E:\MobileRobot\RmCar\RmCar_server.py') #启动服务
+
         self.s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     
     def pushtask(self,cmd,mode):
@@ -95,6 +97,7 @@ class RmCar_x64:
 
 if __name__ == '__main__':
     rm = RmCar_x64()
+    rm.release()
 
 
 

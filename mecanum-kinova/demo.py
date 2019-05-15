@@ -75,7 +75,7 @@ def demo():
                 pass
         pygame.display.update()
         fps_clock.tick(10)
-    del kk
+    kk.release()
     pygame.quit()
 
 if __name__ == '__main__':
