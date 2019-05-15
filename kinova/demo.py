@@ -31,7 +31,7 @@ def demo():
                 else:
                     print "you havn't selected any region"
         pygame.display.update()
-    del kk
+    kk.release()
     pygame.quit()
     
 if __name__ == '__main__':

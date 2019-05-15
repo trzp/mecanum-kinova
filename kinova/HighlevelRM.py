@@ -29,7 +29,7 @@ WORK_HOME_POS_WORLD = np.array([-0.064,0.555,1.056])      #机械臂在配准中
 
 class WorkSpace:  #世界坐标系
     Xrange = [-300,100]
-    Yrange = [300,700]
+    Yrange = [300,700]   #主要确定桌面高度
     Zrange = [84,1400]
     
     def inws(self,p):
