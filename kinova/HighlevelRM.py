@@ -25,7 +25,7 @@ WORK_HOME_POS_MICO = np.array([0.4782,-0.25757,0.1])      #机械臂在配准中
 WORK_HOME_POS_WORLD = np.array([-0.064,0.555,1.056])      #机械臂在配准中心位置时的世界坐标
 
 # 摄像头标定完成后实际测量的轮椅扶手正前，扶手左2/3，高度70厘米桌面向上40cm范围测量的世界坐标范围
-# 不在这个范围的目标将直接放弃
+# 不在这个范围的目标将直接放
 
 class WorkSpace:  #世界坐标系
     Xrange = [-300,100]
@@ -87,7 +87,7 @@ class HLRM(MICO2):
         pos[1] += 45   #定位点为瓶盖，适当下降定位位置
         if not self.WS.inws(pos):
             print 'not accessible position'
-            return 0
+            return 1
 
         #mico坐标系
         #机械臂坐标系：
