@@ -173,6 +173,60 @@ class H_MecanumPro(MecanumPro):
     
     def close_control(self,pointcloud,cmd,obj):
         flg,ang,orient,dis = self.ENV.measure(pointcloud)
+        print dis
+        if flg:
+            if cmd['type']=='move':
+                if dis>400:    self.TranslateV(cmd['pos'],tvel=50,wait=False)
+                else:
+                    self.Stop()
+                    return True
+
+            elif cmd['type']=='angle_adjust':
+                if abs(ang)>3:  #角度过大，需要调整
+                    if dis<100:   self.TranslateV(np.array([0,-1]),wait=False,tvel=5)
+                    else:   #前方距离合理
+                        if abs(ang)>8:  self.RotateV(np.array([np.sign(-ang),1]),wait=False,rvel=2)
+                        elif abs(ang)>3:self.RotateV(np.array([np.sign(-ang),1]),wait=False,rvel=0.5)
+                else:
+                    self.Stop()
+                    return True
+
+            elif cmd['type']=='grip_adjust':
+                if obj == None:
+                    self.Stop()
+                    self.high_level_que = []
+                    print 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                    return True
+
+                pos = obj['center'][[0,2]]
+                temp = pos[0]+70    #水平方向的调整
+                if abs(temp)>50:                     
+                    if dis<100: #保证安全的调整
+                        self.TranslateV(np.array([0,-1]),wait=False,tvel=5)
+                    else:   #正在进行水平方向调整
+                        if abs(temp)>100:
+                            self.TranslateV(np.array([temp,0]),tvel=25,wait=False)
+                        else:
+                            self.TranslateV(np.array([temp,0]),tvel=5,wait=False)
+                else:
+                    self.Stop()
+                    return True
+
+            elif cmd['type']=='close_to':
+                if dis>50:self.TranslateV(np.array([0,1]),tvel=15,wait=False)
+                else:
+                    self.Stop()
+                    return True
+        else:
+            print 'warning'
+        return False
+    
+    
+    
+    
+    
+    def close_control1(self,pointcloud,cmd,obj):
+        flg,ang,orient,dis = self.ENV.measure(pointcloud)
         
         if flg:
             self.error_clocks = []  #正常情况下清空
