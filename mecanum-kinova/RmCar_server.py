@@ -12,19 +12,19 @@ from pykinect import KinectClientV2019
 import numpy as np
 import socket
 import subprocess
-from RmCar import RmCar
+from RmCar import RmCar_x86
 import os,sys
 rootdir = os.path.dirname(os.path.abspath(__file__))
 updir = os.path.dirname(rootdir)
 sys.path.append(updir)
 
-from params import RMCAR_HOST_ADDR
+from mr_params import WC_ADDR
 
 def RmCar_Server():
     try:    #如果网络端口被占用，则说明已经启动了服务，无需再启动
         s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-        s.bind(RMCAR_HOST_ADDR)
-        rm = RmCar(5)
+        s.bind(WC_ADDR)
+        rm = RmCar_x86(5)
     except:
         return
         
