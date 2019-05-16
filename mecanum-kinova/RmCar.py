@@ -21,9 +21,9 @@ rootdir = os.path.dirname(os.path.abspath(__file__))
 updir = os.path.dirname(rootdir)
 sys.path.append(updir)
 
-from params import RMCAR_HOST_ADDR
+from mr_params import WC_ADDR
 
-class RmCar_x86
+class RmCar_x86:
     def __init__(self,mec_com):
         self.mec = H_MecanumPro(mec_com)
         self.mec.set_control_channel('wire')
@@ -73,18 +73,18 @@ class RmCar_x64:
     def pushtask(self,cmd,mode):
         if mode == 'manul':
             buf = '##pushtask**manul**%s'%(cmd)
-            self.s.sendto(buf,RMCAR_HOST_ADDR)
+            self.s.sendto(buf,WC_ADDR)
             self.s.recvfrom(128)
         elif mode == 'auto':
             clas = cmd['name']
             center = cmd['position']
             buf = '##pushtask**auto**%s**%s'%(clas,center.astype(np.float32).tostring())
-            self.s.sendto(buf,RMCAR_HOST_ADDR)
+            self.s.sendto(buf,WC_ADDR)
             self.s.recvfrom(128)
 
     def updatetask(self,pos):
         buf = pos.astype(np.float32).tostring()
-        self.s.sendto('##updatetask**%s'%(buf),RMCAR_HOST_ADDR)
+        self.s.sendto('##updatetask**%s'%(buf),WC_ADDR)
         buf,addr = self.s.recvfrom(128)
         if int(buf):    return True
         else:   return False
