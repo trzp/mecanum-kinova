@@ -21,12 +21,13 @@ sys.path.append(updir)
 from mr_params import WC_ADDR
 
 def RmCar_Server():
-    try:    #如果网络端口被占用，则说明已经启动了服务，无需再启动
-        s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-        s.bind(WC_ADDR)
-        rm = RmCar_x86(5)
-    except:
-        return
+    # try:    #如果网络端口被占用，则说明已经启动了服务，无需再启动
+    print '[smart mobile robot server] starting...'
+    s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+    s.bind(WC_ADDR)
+    rm = RmCar_x86(5)
+    # except:
+        # return
         
     print '[smart mobile robot server] running...'
 
@@ -51,11 +52,16 @@ def RmCar_Server():
                 else:
                     pass
                 s.sendto('0', addr)
+                
             elif b[0] == 'updatetask':
-                p = np.fromstring(b[1],np.float32)
-                if rm.updatetask({'center':p},kinect.point_cloud):
-                    s.sendto('1', addr)
-                    print '>>> task completed'
+                try:
+                    p = np.fromstring(b[1],np.float32)
+                    if rm.updatetask({'center':p},kinect.point_cloud):
+                        s.sendto('1', addr)
+                        print '>>> task completed'
+                except:
+                    pass
+                
                 else:
                     s.sendto('0', addr)
             elif b[0] == 'stop':

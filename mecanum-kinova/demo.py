@@ -15,7 +15,7 @@ import numpy as np
 
 from pykinect import KinectClientV2019
 from pykinect import locate_obj,locate_bottle
-from kcftracker_mul_pro import Tracker_Pro, tracker_pro
+from kcftracker_mul_pro import TrackerPro, tracker_pro
 import multiprocessing
 from multiprocessing import Queue,Event
 from RmCar import RmCar_x64
@@ -25,11 +25,11 @@ def demo():
     screen = pygame.display.set_mode((1280,480))
     END = False
     dr = DragDraw_pgRect(screen)
-    kk = KinectClientV2019(True)
+    kk = KinectClientV2019()
     fps_clock = pygame.time.Clock()
 
     rm = RmCar_x64()
-    track = Tracker_Pro()
+    track = TrackerPro()
     tc_pro = multiprocessing.Process(target = tracker_pro, args = (track.args,))
     tc_pro.start()
     going = 0
@@ -66,6 +66,7 @@ def demo():
             else:
                 if pos['obj'] is not None:   p = pos['obj']
             x,y,w,h = box
+            print p
             pygame.draw.rect(screen,(0,255,0),((x,y),(w,h)),1)
             
             if rm.updatetask(p):

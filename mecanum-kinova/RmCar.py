@@ -69,12 +69,14 @@ class RmCar_x64:
             subprocess.Popen('python2 E:\MobileRobot\RmCar\RmCar_server.py') #启动服务
 
         self.s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+        # self.s.setblocking(0)
     
     def pushtask(self,cmd,mode):
         if mode == 'manul':
             buf = '##pushtask**manul**%s'%(cmd)
             self.s.sendto(buf,WC_ADDR)
             self.s.recvfrom(128)
+
         elif mode == 'auto':
             clas = cmd['name']
             center = cmd['position']
@@ -83,6 +85,7 @@ class RmCar_x64:
             self.s.recvfrom(128)
 
     def updatetask(self,pos):
+        print 'updatetask'
         buf = pos.astype(np.float32).tostring()
         self.s.sendto('##updatetask**%s'%(buf),WC_ADDR)
         buf,addr = self.s.recvfrom(128)
