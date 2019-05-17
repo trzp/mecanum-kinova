@@ -20,7 +20,7 @@ import numpy.linalg as npla
 
 LIMITDIS = 840
 CENTERDIS = 200
-NOTSELF = 840
+NOTSELF = 800
 
 class MecanumPro(threading.Thread,MecanumBase):
     def __init__(self, mec_com):
@@ -192,7 +192,7 @@ class H_MecanumPro(MecanumPro):
                     return True
 
             elif cmd['type']=='grip_adjust':
-                if obj == None:
+                if obj is None:
                     self.Stop()
                     self.high_level_que = []
                     print 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
@@ -299,7 +299,7 @@ class EnvMeasure:
                 onum = points.shape[0]
                 minzz = np.min(zz)
                 ind = np.where(np.fabs(zz - minzz))[0]
-                if ind.size < 5:
+                if ind.size < 10:
                     points = np.delete(points,ind)
                     print '[EnvMeasure] find some noise'
                 num = points.shape[0]
