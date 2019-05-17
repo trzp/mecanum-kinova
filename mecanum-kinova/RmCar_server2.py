@@ -21,15 +21,19 @@ from multiprocessing import Queue,Event
 from RmCar import RmCar_x64,RmCar_x86
 import json
 
+import socket
+from mr_params import *
+
 
 class rmRemoteClient():
-    def __init__(self,hostaddr):
+    def __init__(self):
         self.s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.s1 = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-        self.s1.bind(hostaddr)
-        self.s1.setblocking()
+        self.s1.bind(MAIN_ADDR2)
+        self.s1.setblocking(0)
 
     def pushtask(self,cmd,mode):
+        print 'pushtask'
         if mode == 'manul':
             buf = '##pushtask**manul**%s'%(cmd)
             self.s.sendto(buf,WC_ADDR)
@@ -37,11 +41,12 @@ class rmRemoteClient():
         elif mode == 'auto':
             clas = cmd['name']
             center = cmd['position']
-            box = np.asarray(cmd[box],dtype = np.int32)
+            box = np.asarray(cmd['box'],dtype = np.int32)
             buf = '##pushtask**auto**%s**%s**%s'%(clas,center.astype(np.float32).tostring(),box.tostring())
             self.s.sendto(buf,WC_ADDR)
             
     def update_task(self):
+        print 'updatetask'
         box = None
         try:
             buf,_ = self.s1.recvfrom(128)
@@ -59,19 +64,27 @@ class rmRemoteServer():
         self.rm = RmCar_x86(com)
         self.s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.s.bind(WC_ADDR)
+        self.s.setblocking(0)
         self.track = TrackerPro()
         tc_pro = multiprocessing.Process(target = tracker_pro, args = (self.track.args,))
         tc_pro.start()
-        
+        self.kk = KinectClientV2019()
         self.s1 = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         
     def main(self):
         going = 0
+        END = 0
+        fps_clock = pygame.time.Clock()
         while not END:
             try:
                 buf,addr = self.s.recvfrom(128)
-                cmds = buf.split('##')[-1]  #只接受最后一组命令
+                # print buf
+                # cmds = buf.split('##')  #只接受最后一组命令
+                # print cmds
+                cmd = buf[2:]
+                
                 b = cmd.split('**')
+                print b
                 if b[0] == 'pushtask':
                     if b[1] == 'manul':
                         cmd = b[2]
@@ -88,6 +101,8 @@ class rmRemoteServer():
                         print '>>> get auto task: %s'%(clas)
                     else:
                         pass
+                elif b[0] == 'stop':
+                    self.rm.pushtask('stop','manul')
                 elif b[0] == 'quitpro':
                     END = 1
                     self.rm.pushtask('stop','manul')
@@ -97,17 +112,17 @@ class rmRemoteServer():
 
             if going:
                 box,pos = self.track.update()
-                self.s1.sendto(np.asarray(box,dtype=np.int32).tostring(),MAIN_ADDR)
+                self.s1.sendto(np.asarray(box,dtype=np.int32).tostring(),MAIN_ADDR2)
 
                 if clas == 'bottle':
                     if pos['bottle'] is not None:   p = pos['bottle']
                 else:
                     if pos['obj'] is not None:   p = pos['obj']
 
-                if rm.updatetask(p):
+                if self.rm.updatetask({'center':p},self.kk.point_cloud):
                     going = 0
                     print 'task completed'
-                    self.s1.sendto('**completed',self.BCI2000_addr)
+                    self.s1.sendto('**completed',BCI2000_ADDR)
                 else:
                     pass
 
